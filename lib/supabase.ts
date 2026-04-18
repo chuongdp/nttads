@@ -4,10 +4,12 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  // Prevent silent runtime failures in dev/staging environments.
-  console.warn(
-    "Supabase env vars are missing. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
-  );
+  const message =
+    "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY.";
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(message);
+  }
+  console.warn(`${message} (dev: app may fail when calling Supabase.)`);
 }
 
 export const supabase = createClient(
