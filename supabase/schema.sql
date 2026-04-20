@@ -101,3 +101,13 @@ create policy "auth read roi calculations" on public.roi_calculations
 for select
 to authenticated
 using (true);
+
+-- site_settings.value_json (key = 'general') may include mediaUrls:
+-- { "mediaUrls": { "home_hero": ["https://..."], "home_contact": ["..."], "service_google-ads": ["..."], ... } }
+-- Legacy single string per key is still accepted when reading.
+-- site_settings.value_json may include serviceContent:
+-- { "serviceContent": { "facebook-ads": { "vi": { "title": "...", "formats": [ ... ] }, "en": { ... }, "zh": { ... } }, ... } }
+-- site_settings.value_json may include homeContent:
+-- { "homeContent": { "vi": { "hero": { ... }, "problems": { ... }, "home": { ... } }, "en": { ... }, "zh": { ... } } }
+-- site_settings.value_json may include branding:
+-- { "brandName": "NTT Ads", "brandLogoUrl": "https://...", "brandFaviconUrl": "https://..." }

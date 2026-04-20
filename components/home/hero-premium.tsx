@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Rocket, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SiteImageBlock } from "@/components/media/site-image-block";
 
 export type HeroPremiumCopy = {
   eyebrow: string;
@@ -20,6 +21,8 @@ export type HeroPremiumCopy = {
 
 type HeroPremiumProps = {
   copy: HeroPremiumCopy;
+  heroImageUrls: string[];
+  heroImageAlt: string;
 };
 
 const bulletContainer = {
@@ -42,7 +45,7 @@ const statBox = {
   show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.38, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
-export function HeroPremium({ copy }: HeroPremiumProps) {
+export function HeroPremium({ copy, heroImageUrls, heroImageAlt }: HeroPremiumProps) {
   const params = useParams();
   const locale = typeof params.locale === "string" ? params.locale : "vi";
   const contactHref = `/${locale}#contact`;
@@ -137,6 +140,27 @@ export function HeroPremium({ copy }: HeroPremiumProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.1 }}
         >
+          <div className="mb-4 flex flex-col gap-3">
+            {heroImageUrls.length === 0 ? (
+              <SiteImageBlock
+                src={undefined}
+                alt={heroImageAlt}
+                className="bg-[#eef3f9] shadow-[0_8px_24px_rgba(0,0,0,0.06)] dark:bg-[var(--surface-card)] dark:shadow-[0_8px_28px_rgba(0,0,0,0.35)]"
+                ratioClassName="aspect-[16/10]"
+              />
+            ) : (
+              heroImageUrls.map((src, i) => (
+                <SiteImageBlock
+                  key={`hero-img-${i}`}
+                  src={src}
+                  alt={`${heroImageAlt} ${i + 1}`}
+                  className="bg-[#eef3f9] shadow-[0_8px_24px_rgba(0,0,0,0.06)] dark:bg-[var(--surface-card)] dark:shadow-[0_8px_28px_rgba(0,0,0,0.35)]"
+                  ratioClassName="aspect-[16/10]"
+                  imageClassName="object-contain"
+                />
+              ))
+            )}
+          </div>
           <div className="rounded-[20px] border border-[var(--border)] bg-[var(--surface-card)] p-5 shadow-[0_12px_28px_rgba(0,0,0,0.08),0_2px_4px_rgba(0,0,0,0.06)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)]">
             <motion.div
               className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]"

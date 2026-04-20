@@ -7,25 +7,35 @@ import { HomeStats, type StatItem } from "@/components/home/home-stats";
 import { PartnersMarquee } from "@/components/home/partners-marquee";
 import { PainPointsSection } from "@/components/home/pain-points-section";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
+import { SiteImageBlock } from "@/components/media/site-image-block";
+import { fetchSiteMediaUrls } from "@/lib/site-media";
+import { fetchHomeContentConfig, mergeLandingDictionary } from "@/lib/site-home-config";
+
+export const revalidate = 120;
 
 type HomePageProps = {
   params: Promise<{ locale: Locale }>;
 };
 
-const counters: StatItem[] = [
-  { iconKey: "users", value: "120+", label: "Clients" },
-  { iconKey: "briefcase", value: "350+", label: "Projects" },
-  { iconKey: "trending", value: "4.2x", label: "Avg ROAS" },
-];
-
 export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
-  const dictionary = dictionaries[locale];
+  const homeContentConfig = await fetchHomeContentConfig();
+  const dictionary = mergeLandingDictionary(dictionaries[locale], homeContentConfig[locale]);
+  const media = await fetchSiteMediaUrls();
+  const counters: StatItem[] = [
+    { iconKey: "users", value: "120+", label: dictionary.home.counters.clients },
+    { iconKey: "briefcase", value: "350+", label: dictionary.home.counters.projects },
+    { iconKey: "trending", value: "4.2x", label: dictionary.home.counters.roas },
+  ];
 
   return (
     <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-12 px-4 py-10 md:gap-16 md:px-6 md:py-14">
       <AnimatedReveal>
-        <HeroPremium copy={dictionary.hero} />
+        <HeroPremium
+          copy={dictionary.hero}
+          heroImageUrls={media.home_hero}
+          heroImageAlt={dictionary.brand}
+        />
       </AnimatedReveal>
 
       <PainPointsSection
@@ -51,13 +61,27 @@ export default async function HomePage({ params }: HomePageProps) {
             </p>
             <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-nested)] p-3">
-                <p className="text-[var(--secondary-text)]">Avg Response Time</p>
-                <p className="mt-1 text-lg font-semibold text-[var(--foreground)]">~15 mins</p>
+                <p className="text-[var(--secondary-text)]">{dictionary.home.responseTimeLabel}</p>
+                <p className="mt-1 text-lg font-semibold text-[var(--foreground)]">{dictionary.home.responseTimeValue}</p>
               </div>
               <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-nested)] p-3">
-                <p className="text-[var(--secondary-text)]">Strategy Session</p>
-                <p className="mt-1 text-lg font-semibold text-[var(--foreground)]">Free</p>
+                <p className="text-[var(--secondary-text)]">{dictionary.home.strategySessionLabel}</p>
+                <p className="mt-1 text-lg font-semibold text-[var(--foreground)]">{dictionary.home.strategySessionValue}</p>
               </div>
+            </div>
+            <div className="mt-5 flex flex-col gap-3">
+              {media.home_contact.length === 0 ? (
+                <SiteImageBlock src={undefined} alt={dictionary.brand} ratioClassName="aspect-[5/3]" />
+              ) : (
+                media.home_contact.map((src, i) => (
+                  <SiteImageBlock
+                    key={`contact-img-${i}`}
+                    src={src}
+                    alt={`${dictionary.brand} ${i + 1}`}
+                    ratioClassName="aspect-[5/3]"
+                  />
+                ))
+              )}
             </div>
           </div>
         </ScrollReveal>

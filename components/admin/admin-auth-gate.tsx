@@ -2,7 +2,6 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { Loader2, LogIn, LogOut } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -13,8 +12,6 @@ type AdminAuthGateProps = {
 };
 
 export function AdminAuthGate({ children }: AdminAuthGateProps) {
-  const params = useParams();
-  const locale = typeof params?.locale === "string" ? params.locale : "vi";
   const [session, setSession] = useState<Session | null>(null);
   const [checking, setChecking] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -124,7 +121,7 @@ export function AdminAuthGate({ children }: AdminAuthGateProps) {
           </Button>
           <p className="text-sm">
             <Link
-              href={`/${locale}/admin/forgot-password`}
+              href="/cms/forgot-password"
               className="font-medium text-primary underline-offset-4 hover:underline"
             >
               Forgot password?

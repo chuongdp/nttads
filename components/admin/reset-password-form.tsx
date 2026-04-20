@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Loader2, KeyRound } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -14,9 +14,7 @@ function recoveryHashPresent() {
 }
 
 export function ResetPasswordForm() {
-  const params = useParams();
   const router = useRouter();
-  const locale = typeof params?.locale === "string" ? params.locale : "vi";
   const hadRecoveryHashRef = useRef(false);
   const resolvedRef = useRef(false);
 
@@ -89,7 +87,7 @@ export function ResetPasswordForm() {
     }
 
     await supabase.auth.signOut();
-    router.push(`/${locale}/admin`);
+    router.push("/cms/dashboard");
     router.refresh();
   }
 
@@ -112,11 +110,11 @@ export function ResetPasswordForm() {
           Open the latest link from your email, or request a new reset from the forgot password page.
         </p>
         <p className="mt-4 text-sm">
-          <Link href={`/${locale}/admin/forgot-password`} className="font-medium text-primary underline-offset-4 hover:underline">
+          <Link href="/cms/forgot-password" className="font-medium text-primary underline-offset-4 hover:underline">
             Request new link
           </Link>
           {" · "}
-          <Link href={`/${locale}/admin`} className="font-medium text-primary underline-offset-4 hover:underline">
+          <Link href="/cms/dashboard" className="font-medium text-primary underline-offset-4 hover:underline">
             Admin login
           </Link>
         </p>

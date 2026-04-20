@@ -18,6 +18,8 @@ export type ServicePageCopy = {
   sections: { heading: string; paragraphs: string[] }[];
   deliverables: string[];
   formatsSectionTitle?: string;
+  /** Tiêu đề block 2 ảnh gallery (chỉ dùng layout Facebook phân tán). */
+  gallerySectionTitle?: string;
   formats?: ServiceShowcaseCard[];
   benefitsSectionTitle?: string;
   benefits?: ServiceShowcaseCard[];
@@ -26,8 +28,28 @@ export type ServicePageCopy = {
   ctaLabel?: string;
 };
 
+export type ServiceCmsConfig = Partial<
+  Record<ServiceSlug, Partial<Record<Locale, Partial<ServicePageCopy>>>>
+>;
+
 export function serviceHasShowcaseLayout(copy: ServicePageCopy): boolean {
   return Array.isArray(copy.formats) && copy.formats.length > 0;
+}
+
+export function mergeServicePageCopy(
+  base: ServicePageCopy,
+  override?: Partial<ServicePageCopy>,
+): ServicePageCopy {
+  if (!override) return base;
+  return {
+    ...base,
+    ...override,
+    sections: override.sections ?? base.sections,
+    formats: override.formats ?? base.formats,
+    benefits: override.benefits ?? base.benefits,
+    processSteps: override.processSteps ?? base.processSteps,
+    deliverables: override.deliverables ?? base.deliverables,
+  };
 }
 
 const vi: Record<ServiceSlug, ServicePageCopy> = {
@@ -39,6 +61,7 @@ const vi: Record<ServiceSlug, ServicePageCopy> = {
       "Ai đang tìm mua thì Google là cầu nối. NTT Ads dựng account gọn theo mục tiêu, bám conversion thật, tối ưu từng tuần — không hứa KPI cố định vì mỗi ngành một vốn liếng.",
     sections: [],
     formatsSectionTitle: "Các dạng chiến dịch thường triển khai",
+    gallerySectionTitle: "Mockup landing và giao diện quảng cáo",
     formats: [
       {
         title: "Google Search",
@@ -104,6 +127,7 @@ const vi: Record<ServiceSlug, ServicePageCopy> = {
       "Meta = hình ảnh + cảm xúc. Chúng tôi brief rõ, matrix thử hook/angle, giữ tay trên policy; Advantage+ chỉ bật khi data đủ và bạn ok.",
     sections: [],
     formatsSectionTitle: "Định dạng creative phổ biến",
+    gallerySectionTitle: "Mockup trên điện thoại & feed",
     formats: [
       {
         title: "Ảnh tĩnh",
@@ -299,6 +323,7 @@ const en: Record<ServiceSlug, ServicePageCopy> = {
       "High intent = high leverage. NTT Ads builds lean account structures, ties conversions to real actions, and optimizes weekly — no fixed KPI promises; every vertical is different.",
     sections: [],
     formatsSectionTitle: "Campaign types we run",
+    gallerySectionTitle: "Landing mockups and ad visuals",
     formats: [
       {
         title: "Google Search",
@@ -364,6 +389,7 @@ const en: Record<ServiceSlug, ServicePageCopy> = {
       "Meta wins on motion and emotion. We brief clearly, test hooks/angles on a matrix, watch policy; Advantage+ turns on when signal and approvals align.",
     sections: [],
     formatsSectionTitle: "Common creative formats",
+    gallerySectionTitle: "Mobile mockups & feed preview",
     formats: [
       {
         title: "Single image",
@@ -559,6 +585,7 @@ const zh: Record<ServiceSlug, ServicePageCopy> = {
       "高意图 = 高杠杆。NTT Ads 搭建精简账户结构，把转化对齐真实行为，按周迭代——不承诺固定 KPI，行业与供给各不相同。",
     sections: [],
     formatsSectionTitle: "常见投放类型",
+    gallerySectionTitle: "落地页与广告呈现示例",
     formats: [
       {
         title: "Google 搜索",
@@ -624,6 +651,7 @@ const zh: Record<ServiceSlug, ServicePageCopy> = {
       "Meta 靠画面与情绪取胜。我们写清 brief，用矩阵测 hook/angle，盯政策；数据与审批到位再开 Advantage+。",
     sections: [],
     formatsSectionTitle: "常见创意形式",
+    gallerySectionTitle: "手机与信息流呈现示例",
     formats: [
       {
         title: "单图",

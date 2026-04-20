@@ -4,6 +4,7 @@ import { dictionaries, isSupportedLocale, type Locale } from "@/lib/i18n";
 import { Navbar } from "@/components/navbar";
 import { SiteFooter } from "@/components/site-footer";
 import { TopPromoBar } from "@/components/home/top-promo-bar";
+import { fetchSiteBranding } from "@/lib/site-branding";
 
 type LocaleLayoutProps = {
   children: React.ReactNode;
@@ -21,15 +22,19 @@ export default async function LocaleLayout({
   }
 
   const typedLocale = locale as Locale;
-  const dictionary = dictionaries[typedLocale];
+  const branding = await fetchSiteBranding();
+  const dictionary = {
+    ...dictionaries[typedLocale],
+    brand: branding.brandName || dictionaries[typedLocale].brand,
+  };
 
   return (
     <LanguageProvider locale={typedLocale}>
       <div className="flex min-h-screen flex-col">
         <TopPromoBar tagline={dictionary.topBar.tagline} />
-        <Navbar locale={typedLocale} dictionary={dictionary} />
+        <Navbar locale={typedLocale} dictionary={dictionary} brandLogoUrl={branding.brandLogoUrl} />
         <main className="flex-1">{children}</main>
-        <SiteFooter locale={typedLocale} dictionary={dictionary} />
+        <SiteFooter locale={typedLocale} dictionary={dictionary} brandLogoUrl={branding.brandLogoUrl} />
       </div>
     </LanguageProvider>
   );

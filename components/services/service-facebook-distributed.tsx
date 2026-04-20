@@ -1,76 +1,58 @@
 import Link from "next/link";
 import {
-  BarChart3,
-  FileText,
   Film,
   Hash,
   Image as ImageIcon,
   Images,
   Layers,
   LayoutGrid,
-  Link2,
   PlayCircle,
-  RefreshCw,
   Rocket,
   Scan,
   Search,
   ShoppingBag,
   Smartphone,
   Sparkles,
-  Target,
   Video,
-  Wallet,
   Wand2,
   type LucideIcon,
 } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
 import type { ServicePageCopy, ServiceSlug } from "@/lib/service-content";
 import { SiteImageBlock } from "@/components/media/site-image-block";
-import { ServiceFacebookDistributed } from "@/components/services/service-facebook-distributed";
 
-const FORMAT_ICONS: Record<ServiceSlug, LucideIcon[]> = {
+const FORMAT_ICONS: Record<Extract<ServiceSlug, "google-ads" | "facebook-ads" | "tiktok-ads">, LucideIcon[]> = {
   "google-ads": [Search, LayoutGrid, ShoppingBag, PlayCircle, Smartphone],
   "facebook-ads": [ImageIcon, Video, Layers, Images, Scan, Film],
   "tiktok-ads": [Film, Sparkles, Rocket, Hash, Wand2],
-  seo: [LayoutGrid, FileText, Link2],
 };
 
-const BENEFIT_ICONS: LucideIcon[] = [Target, BarChart3, RefreshCw, Wallet];
-
-type ServiceDetailShowcaseProps = {
+type ServiceFacebookDistributedProps = {
   copy: ServicePageCopy;
   locale: Locale;
-  slug: ServiceSlug;
   deliverablesTitle: string;
-  serviceImageUrls: string[];
+  images: string[];
   serviceImageAlt: string;
+  slug: Extract<ServiceSlug, "google-ads" | "facebook-ads" | "tiktok-ads">;
 };
 
-export function ServiceDetailShowcase({
+function at(images: string[], i: number): string | undefined {
+  return images[i];
+}
+
+export function ServiceFacebookDistributed({
   copy,
   locale,
-  slug,
   deliverablesTitle,
-  serviceImageUrls,
+  images,
   serviceImageAlt,
-}: ServiceDetailShowcaseProps) {
+  slug,
+}: ServiceFacebookDistributedProps) {
   const headline = copy.solutionHeadline ?? copy.title;
-  const formatIcons = FORMAT_ICONS[slug];
   const contactHref = `/${locale}#contact`;
   const cta = copy.ctaLabel ?? "Contact";
-
-  if (slug === "google-ads" || slug === "facebook-ads" || slug === "tiktok-ads") {
-    return (
-      <ServiceFacebookDistributed
-        copy={copy}
-        locale={locale}
-        deliverablesTitle={deliverablesTitle}
-        images={serviceImageUrls}
-        serviceImageAlt={serviceImageAlt}
-        slug={slug}
-      />
-    );
-  }
+  const benefits = copy.benefits ?? [];
+  const formatIcons = FORMAT_ICONS[slug];
 
   return (
     <div className="space-y-16 md:space-y-20">
@@ -92,27 +74,80 @@ export function ServiceDetailShowcase({
         </div>
       </header>
 
-      <section aria-label="Visual" className="mt-10">
-        <div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-2">
-          {serviceImageUrls.length === 0 ? (
-            <SiteImageBlock
-              src={undefined}
-              alt={serviceImageAlt}
-              className="sm:col-span-2"
-              ratioClassName="aspect-[16/10]"
-            />
-          ) : (
-            serviceImageUrls.map((src, i) => (
-              <SiteImageBlock
-                key={`svc-img-${i}`}
-                src={src}
-                alt={`${serviceImageAlt} ${i + 1}`}
-                ratioClassName="aspect-[16/10]"
-              />
-            ))
-          )}
+      <section
+        aria-labelledby={`${slug}-intro-heading`}
+        className="grid gap-10 rounded-3xl border border-[var(--border)] bg-[var(--surface-card)] px-6 py-10 md:grid-cols-2 md:items-center md:gap-12 md:px-10 md:py-12"
+      >
+        <div className="min-w-0">
+          <h2 id={`${slug}-intro-heading`} className="text-xl font-semibold text-[var(--foreground)] md:text-2xl">
+            {copy.summary}
+          </h2>
+        </div>
+        <SiteImageBlock
+          src={at(images, 0)}
+          alt={`${serviceImageAlt} — intro`}
+          ratioClassName="aspect-[4/3]"
+          className="shadow-[0_12px_40px_-16px_rgba(0,0,0,0.12)]"
+        />
+      </section>
+
+      <section aria-labelledby={`${slug}-gallery-heading`} className="space-y-6">
+        <h2 id={`${slug}-gallery-heading`} className="text-2xl font-semibold tracking-tight text-[var(--foreground)]">
+          {copy.gallerySectionTitle ?? copy.formatsSectionTitle ?? ""}
+        </h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <SiteImageBlock
+            src={at(images, 1)}
+            alt={`${serviceImageAlt} — gallery 1`}
+            ratioClassName="aspect-[9/16]"
+            className="rounded-2xl"
+          />
+          <SiteImageBlock
+            src={at(images, 2)}
+            alt={`${serviceImageAlt} — gallery 2`}
+            ratioClassName="aspect-[9/16]"
+            className="rounded-2xl"
+          />
         </div>
       </section>
+
+      {benefits.length > 0 && (
+        <section aria-labelledby={`${slug}-benefits-heading`} className="space-y-4">
+          <h2 id={`${slug}-benefits-heading`} className="text-2xl font-semibold tracking-tight text-[var(--foreground)]">
+            {copy.benefitsSectionTitle ?? ""}
+          </h2>
+          <div className="space-y-10 md:space-y-14">
+            {benefits.map((b, i) => {
+              const imgIndex = 3 + i;
+              const reverse = i % 2 === 1;
+              return (
+                <div
+                  key={b.title}
+                  className={`grid gap-8 rounded-3xl border border-[var(--border)] px-5 py-8 md:grid-cols-2 md:items-center md:gap-12 md:px-10 md:py-10 ${
+                    i % 2 === 0 ? "bg-[var(--baby-blue)]/35 dark:bg-primary/[0.06]" : "bg-[var(--surface-nested)]"
+                  }`}
+                >
+                  <div className={`min-w-0 space-y-3 ${reverse ? "md:order-2" : ""}`}>
+                    <p className="text-4xl font-black tabular-nums leading-none text-primary/25 md:text-5xl">
+                      {String(i + 1).padStart(2, "0")}
+                    </p>
+                    <h3 className="text-lg font-semibold text-[var(--foreground)] md:text-xl">{b.title}</h3>
+                    <p className="text-sm leading-relaxed text-[var(--body-muted)] md:text-base">{b.description}</p>
+                  </div>
+                  <div className={reverse ? "md:order-1" : ""}>
+                    <SiteImageBlock
+                      src={at(images, imgIndex)}
+                      alt={`${serviceImageAlt} — ${b.title}`}
+                      ratioClassName="aspect-[16/11]"
+                      className="rounded-2xl"
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {copy.formats && copy.formats.length > 0 && (
         <section aria-labelledby="formats-heading">
@@ -132,33 +167,6 @@ export function ServiceDetailShowcase({
                   </div>
                   <h3 className="mt-4 text-base font-semibold text-[var(--foreground)]">{card.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-[var(--body-muted)]">{card.description}</p>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {copy.benefits && copy.benefits.length > 0 && (
-        <section
-          aria-labelledby="benefits-heading"
-          className="rounded-3xl border border-[var(--border)] bg-[var(--surface-nested)] px-5 py-10 md:px-8 md:py-12"
-        >
-          <h2 id="benefits-heading" className="text-2xl font-semibold tracking-tight text-[var(--foreground)]">
-            {copy.benefitsSectionTitle ?? ""}
-          </h2>
-          <div className="mt-10 grid gap-10 md:grid-cols-2 md:gap-x-12 md:gap-y-10">
-            {copy.benefits.map((b, i) => {
-              const Icon = BENEFIT_ICONS[i % BENEFIT_ICONS.length];
-              return (
-                <div key={b.title} className="flex gap-4">
-                  <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--surface-card)] text-primary shadow-sm ring-1 ring-[var(--border)]">
-                    <Icon className="size-6" aria-hidden />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-[var(--foreground)]">{b.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-[var(--body-muted)]">{b.description}</p>
-                  </div>
                 </div>
               );
             })}
@@ -196,10 +204,7 @@ export function ServiceDetailShowcase({
           ))}
         </ul>
         <p className="mt-6">
-          <Link
-            href={contactHref}
-            className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-          >
+          <Link href={contactHref} className="text-sm font-medium text-primary underline-offset-4 hover:underline">
             {cta}
           </Link>
         </p>

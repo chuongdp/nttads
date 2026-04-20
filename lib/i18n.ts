@@ -35,6 +35,15 @@ export type Dictionary = {
   };
   home: {
     contactBlurb: string;
+    responseTimeLabel: string;
+    responseTimeValue: string;
+    strategySessionLabel: string;
+    strategySessionValue: string;
+    counters: {
+      clients: string;
+      projects: string;
+      roas: string;
+    };
   };
   servicesIndex: {
     title: string;
@@ -77,33 +86,42 @@ export const dictionaries: Record<Locale, Dictionary> = {
     },
     hero: {
       eyebrow: "Quảng cáo Google & Facebook / Meta",
-      titleLine1: "Gia tăng doanh số",
-      titleLine2: "và phát triển thương hiệu",
+      titleLine1: "Tăng trưởng doanh thu",
+      titleLine2: "bằng hệ thống quảng cáo đa kênh",
       subtitle:
-        "Triển khai bài bản, báo cáo minh bạch, đồng hành tối ưu ngân sách — phong cách hiệu quả như đối tác agency hàng đầu.",
+        "Lập kế hoạch, triển khai, đo lường và tối ưu Google Ads, Meta, TikTok theo quy trình rõ ràng để tăng lead chất lượng và doanh số bền vững.",
       cta: "Đăng ký tư vấn",
       secondaryCta: "Xem case study",
       bullets: [
-        "Triển khai chuyên nghiệp, có quy trình rõ ràng",
-        "Báo cáo minh bạch — số liệu theo tuần / tháng",
-        "Đồng hành tối ưu chiến dịch theo mục tiêu kinh doanh",
+        "Kế hoạch media theo mục tiêu và ngân sách thực tế",
+        "Theo dõi chỉ số rõ ràng theo tuần, theo tháng",
+        "Tối ưu liên tục để giảm CPA và tăng ROAS",
       ],
       statsTitle: "Hiệu suất chiến dịch (minh họa)",
       statsFootnote: "Tối ưu dựa trên dữ liệu — minh bạch theo từng giai đoạn.",
     },
     problems: {
-      kicker: "Giải pháp nào cho bạn?",
-      title: "Bạn đang gặp phải vấn đề",
+      kicker: "NTT Ads đồng hành cùng doanh nghiệp",
+      title: "Những bài toán thường gặp khi chạy quảng cáo",
       items: [
-        "Chưa biết bắt đầu chạy quảng cáo từ đâu, cần lộ trình rõ ràng.",
-        "Đang tự chạy nhưng chưa hiệu quả — muốn tăng tiếp cận, tăng chuyển đổi, giảm CPA.",
-        "Có team inhouse nhưng cần cập nhật nhanh format ads & best practice mới.",
-        "Muốn đa kênh (Google + Meta + TikTok) để tăng nhận diện và chuyển đổi.",
+        "Ngân sách chạy ads tăng nhưng số lead/chốt đơn chưa tương xứng.",
+        "Chưa có cấu trúc chiến dịch và kế hoạch test nội dung bài bản.",
+        "Đội ngũ in-house thiếu thời gian theo dõi policy và cập nhật nền tảng.",
+        "Muốn kết hợp Google + Meta + TikTok để phủ toàn bộ phễu chuyển đổi.",
       ],
     },
     home: {
       contactBlurb:
-        "Để lại thông tin — team sẽ liên hệ gợi ý lộ trình tăng trưởng phù hợp ngân sách và mục tiêu.",
+        "Để lại thông tin, đội ngũ NTT Ads sẽ liên hệ tư vấn chiến lược phù hợp mô hình kinh doanh, mục tiêu tăng trưởng và mức ngân sách của bạn.",
+      responseTimeLabel: "Thời gian phản hồi",
+      responseTimeValue: "Khoảng 15 phút",
+      strategySessionLabel: "Phiên tư vấn chiến lược",
+      strategySessionValue: "Miễn phí",
+      counters: {
+        clients: "Khách hàng",
+        projects: "Chiến dịch",
+        roas: "ROAS trung bình",
+      },
     },
     servicesIndex: {
       title: "Dịch vụ Growth & Paid Media",
@@ -145,33 +163,42 @@ export const dictionaries: Record<Locale, Dictionary> = {
     },
     hero: {
       eyebrow: "Google & Facebook / Meta Ads",
-      titleLine1: "Grow revenue",
-      titleLine2: "and strengthen your brand",
+      titleLine1: "Scale revenue",
+      titleLine2: "with a full-funnel ad system",
       subtitle:
-        "Structured delivery, transparent reporting, and continuous budget optimization — premium agency execution.",
+        "Plan, execute, measure, and optimize Google Ads, Meta, and TikTok campaigns with clear operating frameworks focused on qualified leads and sustainable growth.",
       cta: "Book a consultation",
       secondaryCta: "View case studies",
       bullets: [
-        "Professional playbooks with clear milestones",
-        "Transparent reporting — weekly / monthly metrics",
-        "Hands-on optimization aligned to business goals",
+        "Channel strategy mapped to your goals and budget",
+        "Transparent weekly and monthly performance reporting",
+        "Continuous optimization to lower CPA and improve ROAS",
       ],
       statsTitle: "Campaign performance (sample)",
       statsFootnote: "Data-led optimization with stage-by-stage transparency.",
     },
     problems: {
-      kicker: "Which solution fits you?",
-      title: "Common challenges we solve",
+      kicker: "Partnering with growth-focused teams",
+      title: "Common paid media challenges we solve",
       items: [
-        "You need a clear roadmap to start paid ads confidently.",
-        "In-house efforts are not scaling — improve reach, CVR, and CPA.",
-        "Your team needs faster adoption of new ad formats and policies.",
-        "You want multi-channel growth across Google, Meta, and TikTok.",
+        "Ad spend is rising but lead quality and revenue are not improving enough.",
+        "Campaign structure and creative testing are not yet systematic.",
+        "Your in-house team has limited bandwidth for policies and platform updates.",
+        "You need coordinated growth across Google, Meta, and TikTok funnels.",
       ],
     },
     home: {
       contactBlurb:
-        "Share your details — we will follow up with a growth roadmap aligned to your goals and budget.",
+        "Share your details and our team will follow up with a practical growth roadmap aligned with your goals, market, and budget.",
+      responseTimeLabel: "Average response time",
+      responseTimeValue: "~15 minutes",
+      strategySessionLabel: "Strategy session",
+      strategySessionValue: "Free",
+      counters: {
+        clients: "Clients",
+        projects: "Campaigns",
+        roas: "Avg ROAS",
+      },
     },
     servicesIndex: {
       title: "Growth & paid media services",
@@ -213,32 +240,41 @@ export const dictionaries: Record<Locale, Dictionary> = {
     },
     hero: {
       eyebrow: "Google 与 Facebook / Meta 广告",
-      titleLine1: "提升销量",
-      titleLine2: "并强化品牌认知",
+      titleLine1: "提升营收增长",
+      titleLine2: "打造全漏斗广告体系",
       subtitle:
-        "流程清晰、报表透明、持续优化预算 — 对标一线代理商的落地方式。",
+        "围绕 Google Ads、Meta、TikTok 制定可执行投放方案，持续监测与优化，帮助你获得更高质量线索与稳定增长。",
       cta: "预约咨询",
       secondaryCta: "查看案例",
       bullets: [
-        "专业交付与里程碑管理",
-        "透明报表 — 按周/按月复盘",
-        "围绕业务目标持续优化投放",
+        "按业务目标与预算制定渠道组合",
+        "按周与按月透明复盘关键指标",
+        "持续优化 CPA 与 ROAS 表现",
       ],
       statsTitle: "投放表现（示例）",
       statsFootnote: "以数据驱动优化，分阶段透明对齐。",
     },
     problems: {
-      kicker: "你更适合哪种方案？",
-      title: "我们帮你解决的典型问题",
+      kicker: "与增长型团队并肩作战",
+      title: "我们常解决的投放难题",
       items: [
-        "不知道如何起步投放，需要清晰路线图。",
-        "自投效果不佳，希望提升触达、转化并降低 CPA。",
-        "有 inhouse 团队，但需要快速跟上新格式与政策。",
-        "希望多渠道（Google + Meta + TikTok）协同增长。",
+        "广告预算在涨，但线索质量和成交提升有限。",
+        "缺少稳定的投放结构与创意测试机制。",
+        "团队人手有限，难以及时跟进平台政策与变化。",
+        "希望 Google、Meta、TikTok 打通并覆盖全漏斗。",
       ],
     },
     home: {
-      contactBlurb: "留下信息——我们将结合预算与目标，提供可执行的增长路径建议。",
+      contactBlurb: "留下信息，我们将根据你的目标、行业与预算，提供可执行的增长投放建议。",
+      responseTimeLabel: "平均响应时间",
+      responseTimeValue: "约 15 分钟",
+      strategySessionLabel: "策略咨询",
+      strategySessionValue: "免费",
+      counters: {
+        clients: "客户数",
+        projects: "投放项目",
+        roas: "平均 ROAS",
+      },
     },
     servicesIndex: {
       title: "增长与付费媒体服务",

@@ -3,7 +3,17 @@ import { notFound } from "next/navigation";
 import { ServiceDetailShowcase } from "@/components/services/service-detail-showcase";
 import type { Locale } from "@/lib/i18n";
 import { dictionaries, isSupportedLocale } from "@/lib/i18n";
-import { getServicePageCopy, serviceHasShowcaseLayout, serviceSlugs, type ServiceSlug } from "@/lib/service-content";
+import {
+  getServicePageCopy,
+  mergeServicePageCopy,
+  serviceHasShowcaseLayout,
+  serviceSlugs,
+  type ServiceSlug,
+} from "@/lib/service-content";
+import { fetchSiteMediaUrls, serviceMediaSlot } from "@/lib/site-media";
+import { fetchServiceContentConfig } from "@/lib/site-service-config";
+
+export const revalidate = 120;
 
 type ServiceDetailProps = {
   params: Promise<{ locale: string; slug: string }>;
@@ -22,8 +32,11 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: ServiceDetailProps) {
   const { locale: loc, slug } = await params;
   if (!isSupportedLocale(loc)) return { title: "Service" };
-  const copy = getServicePageCopy(loc, slug);
-  if (!copy) return { title: "Service" };
+  const baseCopy = getServicePageCopy(loc, slug);
+  if (!baseCopy) return { title: "Service" };
+  const slugTyped = slug as ServiceSlug;
+  const serviceContentConfig = await fetchServiceContentConfig();
+  const copy = mergeServicePageCopy(baseCopy, serviceContentConfig[slugTyped]?.[loc]);
   const brand = dictionaries[loc].brand;
   return { title: `${copy.title} | ${brand}` };
 }
@@ -32,15 +45,19 @@ export default async function ServiceDetailPage({ params }: ServiceDetailProps) 
   const { locale: loc, slug } = await params;
   if (!isSupportedLocale(loc)) notFound();
 
-  const copy = getServicePageCopy(loc, slug);
-  if (!copy) notFound();
+  const baseCopy = getServicePageCopy(loc, slug);
+  if (!baseCopy) notFound();
 
   const dict = dictionaries[loc];
   const servicesHref = `/${loc}/services`;
   const deliverablesTitle =
     loc === "vi" ? "Phạm vi triển khai" : loc === "zh" ? "交付范围" : "What we deliver";
-  const useShowcase = serviceHasShowcaseLayout(copy);
   const slugTyped = slug as ServiceSlug;
+  const media = await fetchSiteMediaUrls();
+  const serviceContentConfig = await fetchServiceContentConfig();
+  const copy = mergeServicePageCopy(baseCopy, serviceContentConfig[slugTyped]?.[loc]);
+  const useShowcase = serviceHasShowcaseLayout(copy);
+  const serviceSlot = serviceMediaSlot(slugTyped);
 
   return (
     <article className="mx-auto max-w-6xl px-4 py-12">
@@ -63,6 +80,8 @@ export default async function ServiceDetailPage({ params }: ServiceDetailProps) 
             locale={loc}
             slug={slugTyped}
             deliverablesTitle={deliverablesTitle}
+            serviceImageUrls={media[serviceSlot]}
+            serviceImageAlt={copy.title}
           />
         </div>
       ) : (

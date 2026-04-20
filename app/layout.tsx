@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { fetchSiteBranding } from "@/lib/site-branding";
 
 /** DESIGN.md (Meta preset): Optimistic VF → Montserrat / Helvetica stack */
 const montserrat = Montserrat({
@@ -14,11 +15,22 @@ const montserrat = Montserrat({
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://nntads.live";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: "NTT Ads Digital Agency",
-  description: "High-conversion digital marketing agency website",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const branding = await fetchSiteBranding();
+  const hasBrandIcon = Boolean(branding.brandFaviconUrl ?? branding.brandLogoUrl);
+  return {
+    metadataBase: new URL(siteUrl),
+    title: `${branding.brandName} Digital Agency`,
+    description: "High-conversion digital marketing agency website",
+    icons: hasBrandIcon
+      ? {
+          icon: [{ url: "/favicon.ico" }],
+          shortcut: ["/favicon.ico"],
+          apple: ["/favicon.ico"],
+        }
+      : undefined,
+  };
+}
 
 export default function RootLayout({
   children,

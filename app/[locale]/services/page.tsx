@@ -3,6 +3,10 @@ import { type Locale } from "@/lib/i18n";
 import { dictionaries, isSupportedLocale } from "@/lib/i18n";
 import { servicePageCopy, serviceSlugs } from "@/lib/service-content";
 import { notFound } from "next/navigation";
+import { SiteImageBlock } from "@/components/media/site-image-block";
+import { fetchSiteMediaUrls, serviceMediaSlot } from "@/lib/site-media";
+
+export const revalidate = 120;
 
 type ServicesPageProps = {
   params: Promise<{ locale: string }>;
@@ -15,6 +19,7 @@ export default async function ServicesPage({ params }: ServicesPageProps) {
   const locale = loc as Locale;
   const dict = dictionaries[locale];
   const copy = servicePageCopy[locale];
+  const media = await fetchSiteMediaUrls();
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
@@ -26,12 +31,19 @@ export default async function ServicesPage({ params }: ServicesPageProps) {
       <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
         {serviceSlugs.map((slug) => {
           const s = copy[slug];
+          const slot = serviceMediaSlot(slug);
           return (
             <Link
               key={slug}
               href={`/${locale}/services/${slug}`}
               className="group rounded-2xl border border-[var(--border)] bg-[var(--surface-card)] p-6 shadow-[0_2px_4px_rgba(0,0,0,0.06)] transition hover:border-primary/30 hover:shadow-[0_8px_28px_-8px_color-mix(in_srgb,var(--primary)_22%,transparent)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
             >
+              <SiteImageBlock
+                src={media[slot][0]}
+                alt={s.title}
+                className="mb-4"
+                ratioClassName="aspect-[16/9]"
+              />
               <h2 className="text-lg font-semibold text-[var(--foreground)] group-hover:text-primary">
                 {s.title}
               </h2>

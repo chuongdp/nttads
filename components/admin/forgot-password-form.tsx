@@ -2,7 +2,6 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import { Loader2, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -10,8 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export function ForgotPasswordForm() {
-  const params = useParams();
-  const locale = typeof params?.locale === "string" ? params.locale : "vi";
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
@@ -24,7 +21,7 @@ export function ForgotPasswordForm() {
     const form = e.currentTarget;
     const email = String(new FormData(form).get("email") ?? "").trim();
     const origin = window.location.origin;
-    const redirectTo = `${origin}/${locale}/admin/reset-password`;
+    const redirectTo = `${origin}/cms/reset-password`;
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo,
@@ -46,12 +43,9 @@ export function ForgotPasswordForm() {
     <section className="rounded-xl bg-[var(--surface-nested)] p-6">
       <h1 className="text-xl font-semibold text-[var(--foreground)]">Forgot password</h1>
       <p className="mt-2 text-sm text-[var(--body-muted)]">
-        Enter your admin email. Supabase will send a recovery link. In the Supabase Dashboard, add this exact URL pattern
-        to <strong className="text-[var(--foreground)]">Authentication → URL Configuration → Redirect URLs</strong> (e.g.{" "}
-        <code className="rounded bg-[var(--surface-nested)] px-1.5 py-0.5 text-xs">
-          http://localhost:3000/{locale}/admin/reset-password
-        </code>{" "}
-        for local dev, plus your production URL) or the email link will not work.
+        Enter your admin email. In Supabase <strong className="text-[var(--foreground)]">Authentication → URL Configuration → Redirect URLs</strong> add your CMS origin +{" "}
+        <code className="rounded bg-[var(--surface-card)] px-1.5 py-0.5 text-xs">/reset-password</code> (e.g.{" "}
+        <code className="rounded bg-[var(--surface-card)] px-1.5 py-0.5 text-xs">http://localhost:3000/cms/reset-password</code>).
       </p>
 
       {sent ? (
@@ -80,7 +74,7 @@ export function ForgotPasswordForm() {
       )}
 
       <p className="mt-6 text-sm">
-        <Link href={`/${locale}/admin`} className="font-medium text-primary underline-offset-4 hover:underline">
+        <Link href="/cms/dashboard" className="font-medium text-primary underline-offset-4 hover:underline">
           ← Back to admin login
         </Link>
       </p>

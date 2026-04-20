@@ -14,6 +14,7 @@ import {
 
 type NavbarProps = {
   locale: Locale;
+  brandLogoUrl?: string;
   dictionary: {
     brand: string;
     nav: {
@@ -35,14 +36,23 @@ const serviceLinks = [
   { slug: "seo", label: "SEO Services" },
 ];
 
-export function Navbar({ locale, dictionary }: NavbarProps) {
+export function Navbar({ locale, dictionary, brandLogoUrl }: NavbarProps) {
   const base = `/${locale}`;
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--surface-card)_92%,transparent)] backdrop-blur-md supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--surface-card)_86%,transparent)]">
       <nav className="mx-auto flex h-14 w-full max-w-[1440px] items-center justify-between px-4 md:h-16 md:px-6">
-        <Link href={base} className="text-base font-semibold tracking-tight text-[var(--foreground)]">
-          {dictionary.brand}
+        <Link href={base} className="flex items-center gap-2 text-base font-semibold tracking-tight text-[var(--foreground)]">
+          {brandLogoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- URL cấu hình từ CMS
+            <img
+              src={brandLogoUrl}
+              alt={dictionary.brand}
+              className="h-8 w-8 rounded-md object-contain"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          ) : null}
+          <span>{dictionary.brand}</span>
         </Link>
 
         <div className="hidden items-center gap-7 md:flex">
@@ -97,7 +107,7 @@ export function Navbar({ locale, dictionary }: NavbarProps) {
             {dictionary.nav.blog}
           </Link>
           <Link
-            href={`${base}/admin`}
+            href="/cms/dashboard"
             className="text-base font-medium text-[var(--foreground)] decoration-2 underline-offset-4 hover:underline"
           >
             {dictionary.nav.admin}

@@ -1,4 +1,9 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { NextConfig } from "next";
+
+/** Turbopack mặc định có thể lấy workspace cha (vd. D:\\InternalTools) → @import \"tailwindcss\" fail. */
+const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -20,6 +25,13 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   output: "standalone",
+  experimental: {
+    /** Giảm ghi cache Turbopack (log từng thấy ~20s+ “writing to filesystem cache” → máy đơ). */
+    turbopackFileSystemCacheForDev: false,
+  },
+  turbopack: {
+    root: projectRoot,
+  },
   headers: async () => [
     {
       source: "/:path*",

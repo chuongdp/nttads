@@ -5,6 +5,7 @@ import type { Dictionary, Locale } from "@/lib/i18n";
 type SiteFooterProps = {
   locale: Locale;
   dictionary: Dictionary;
+  brandLogoUrl?: string;
 };
 
 function telHrefVn(display: string): string {
@@ -14,7 +15,7 @@ function telHrefVn(display: string): string {
   return `tel:${display}`;
 }
 
-export function SiteFooter({ locale, dictionary }: SiteFooterProps) {
+export function SiteFooter({ locale, dictionary, brandLogoUrl }: SiteFooterProps) {
   const base = `/${locale}`;
   const f = dictionary.footer;
 
@@ -23,7 +24,18 @@ export function SiteFooter({ locale, dictionary }: SiteFooterProps) {
       <div className="mx-auto grid max-w-[1440px] gap-10 px-4 py-12 md:grid-cols-2 md:px-6 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-5">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">{f.title}</p>
-          <h2 className="mt-2 text-xl font-semibold tracking-tight">{dictionary.brand}</h2>
+          <div className="mt-2 flex items-center gap-2">
+            {brandLogoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- URL cấu hình từ CMS
+              <img
+                src={brandLogoUrl}
+                alt={dictionary.brand}
+                className="h-7 w-7 rounded-md object-contain"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            ) : null}
+            <h2 className="text-xl font-semibold tracking-tight">{dictionary.brand}</h2>
+          </div>
           <p className="mt-2 max-w-md text-sm leading-relaxed text-[var(--body-muted)]">{f.subtitle}</p>
           <ul className="mt-6 space-y-4 text-sm">
             <li className="flex gap-3">
