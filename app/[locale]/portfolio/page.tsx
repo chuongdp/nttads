@@ -39,9 +39,6 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
           {bundle.title}
         </h1>
         <p className="mt-3 leading-relaxed text-[var(--body-muted)]">{bundle.intro}</p>
-        <p className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] px-4 py-3 text-sm leading-relaxed text-[var(--foreground)] dark:border-amber-400/20 dark:bg-amber-400/[0.08]">
-          {bundle.disclaimer}
-        </p>
       </header>
 
       <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">

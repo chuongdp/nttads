@@ -13,6 +13,8 @@ export type Dictionary = {
     blog: string;
     admin: string;
     contact: string;
+    menuOpen: string;
+    menuClose: string;
   };
   topBar: {
     tagline: string;
@@ -80,6 +82,8 @@ export const dictionaries: Record<Locale, Dictionary> = {
       blog: "Blog",
       admin: "Quản trị",
       contact: "Liên hệ",
+      menuOpen: "Mở menu điều hướng",
+      menuClose: "Đóng menu điều hướng",
     },
     topBar: {
       tagline: "Giải pháp Google & Meta — tối ưu chuyển đổi",
@@ -157,6 +161,8 @@ export const dictionaries: Record<Locale, Dictionary> = {
       blog: "Blog",
       admin: "Admin",
       contact: "Contact",
+      menuOpen: "Open navigation menu",
+      menuClose: "Close navigation menu",
     },
     topBar: {
       tagline: "Google & Meta ads — conversion-first",
@@ -234,6 +240,8 @@ export const dictionaries: Record<Locale, Dictionary> = {
       blog: "博客",
       admin: "后台",
       contact: "联系",
+      menuOpen: "打开导航菜单",
+      menuClose: "关闭导航菜单",
     },
     topBar: {
       tagline: "Google 与 Meta 广告 — 以转化为先",

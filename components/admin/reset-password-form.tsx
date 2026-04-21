@@ -2,12 +2,14 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Loader2, KeyRound } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useCmsDictionary } from "@/context/cms-dictionary-context";
+import type { Locale } from "@/lib/i18n";
 
 function recoveryHashPresent() {
   return typeof window !== "undefined" && window.location.hash.includes("type=recovery");
@@ -15,6 +17,11 @@ function recoveryHashPresent() {
 
 export function ResetPasswordForm() {
   const router = useRouter();
+  const params = useParams();
+  const cmsLocale = (typeof params.locale === "string" ? params.locale : "vi") as Locale;
+  const cmsBase = `/${cmsLocale}/cms`;
+  const t = useCmsDictionary().reset;
+
   const hadRecoveryHashRef = useRef(false);
   const resolvedRef = useRef(false);
 
@@ -69,11 +76,11 @@ export function ResetPasswordForm() {
     const password = String(fd.get("password") ?? "");
     const confirm = String(fd.get("confirm") ?? "");
     if (password.length < 8) {
-      setMessage("Password must be at least 8 characters.");
+      setMessage(t.minPassword);
       return;
     }
     if (password !== confirm) {
-      setMessage("Passwords do not match.");
+      setMessage(t.passwordMismatch);
       return;
     }
 
@@ -87,7 +94,7 @@ export function ResetPasswordForm() {
     }
 
     await supabase.auth.signOut();
-    router.push("/cms/dashboard");
+    router.push(`${cmsBase}/dashboard`);
     router.refresh();
   }
 
@@ -96,7 +103,7 @@ export function ResetPasswordForm() {
       <section className="rounded-xl bg-[var(--surface-nested)] p-8">
         <div className="flex items-center gap-2 text-sm text-[var(--body-muted)]">
           <Loader2 className="h-4 w-4 animate-spin" />
-          Validating recovery link…
+          {t.validating}
         </div>
       </section>
     );
@@ -105,17 +112,15 @@ export function ResetPasswordForm() {
   if (phase === "invalid") {
     return (
       <section className="rounded-xl bg-[var(--surface-nested)] p-6">
-        <h1 className="text-xl font-semibold text-[var(--foreground)]">Invalid or expired link</h1>
-        <p className="mt-2 text-sm text-[var(--body-muted)]">
-          Open the latest link from your email, or request a new reset from the forgot password page.
-        </p>
+        <h1 className="text-xl font-semibold text-[var(--foreground)]">{t.invalidTitle}</h1>
+        <p className="mt-2 text-sm text-[var(--body-muted)]">{t.invalidHint}</p>
         <p className="mt-4 text-sm">
-          <Link href="/cms/forgot-password" className="font-medium text-primary underline-offset-4 hover:underline">
-            Request new link
+          <Link href={`${cmsBase}/forgot-password`} className="font-medium text-primary underline-offset-4 hover:underline">
+            {t.requestNew}
           </Link>
           {" · "}
-          <Link href="/cms/dashboard" className="font-medium text-primary underline-offset-4 hover:underline">
-            Admin login
+          <Link href={`${cmsBase}/dashboard`} className="font-medium text-primary underline-offset-4 hover:underline">
+            {t.adminLogin}
           </Link>
         </p>
       </section>
@@ -124,16 +129,16 @@ export function ResetPasswordForm() {
 
   return (
     <section className="rounded-xl bg-[var(--surface-nested)] p-6">
-      <h1 className="text-xl font-semibold text-[var(--foreground)]">Set new password</h1>
-      <p className="mt-2 text-sm text-[var(--body-muted)]">Choose a strong password for your admin account.</p>
+      <h1 className="text-xl font-semibold text-[var(--foreground)]">{t.setTitle}</h1>
+      <p className="mt-2 text-sm text-[var(--body-muted)]">{t.setHint}</p>
 
       <form onSubmit={onSubmit} className="mt-4 grid max-w-md gap-4">
         <div className="space-y-2">
-          <Label htmlFor="np-password">New password</Label>
+          <Label htmlFor="np-password">{t.newPassword}</Label>
           <Input id="np-password" name="password" type="password" autoComplete="new-password" required minLength={8} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="np-confirm">Confirm password</Label>
+          <Label htmlFor="np-confirm">{t.confirmPassword}</Label>
           <Input
             id="np-confirm"
             name="confirm"
@@ -147,12 +152,12 @@ export function ResetPasswordForm() {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving…
+              {t.saving}
             </>
           ) : (
             <>
               <KeyRound className="mr-2 h-4 w-4" />
-              Update password
+              {t.updatePassword}
             </>
           )}
         </Button>

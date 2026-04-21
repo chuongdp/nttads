@@ -2,16 +2,24 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { Loader2, LogIn, LogOut } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
+import { useCmsDictionary } from "@/context/cms-dictionary-context";
+import type { Locale } from "@/lib/i18n";
 
 type AdminAuthGateProps = {
   children: React.ReactNode;
 };
 
 export function AdminAuthGate({ children }: AdminAuthGateProps) {
+  const params = useParams();
+  const cmsLocale = (typeof params.locale === "string" ? params.locale : "vi") as Locale;
+  const cmsBase = `/${cmsLocale}/cms`;
+  const t = useCmsDictionary().auth;
+
   const [session, setSession] = useState<Session | null>(null);
   const [checking, setChecking] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -54,9 +62,9 @@ export function AdminAuthGate({ children }: AdminAuthGateProps) {
     });
 
     if (error) {
-      setMessage(`Login failed: ${error.message}`);
+      setMessage(`${t.loginFailedPrefix} ${error.message}`);
     } else {
-      setMessage("Login successful.");
+      setMessage(t.loginSuccess);
     }
 
     setLoading(false);
@@ -67,7 +75,7 @@ export function AdminAuthGate({ children }: AdminAuthGateProps) {
     setMessage("");
     const { error } = await supabase.auth.signOut();
     if (error) {
-      setMessage(`Logout failed: ${error.message}`);
+      setMessage(`${t.logoutFailedPrefix} ${error.message}`);
     }
     setLoading(false);
   }
@@ -77,7 +85,7 @@ export function AdminAuthGate({ children }: AdminAuthGateProps) {
       <section className="rounded-xl bg-[var(--surface-nested)] p-6">
         <div className="flex items-center gap-2 text-sm text-slate-500">
           <Loader2 className="h-4 w-4 animate-spin" />
-          Checking admin session...
+          {t.checkingSession}
         </div>
       </section>
     );
@@ -86,23 +94,21 @@ export function AdminAuthGate({ children }: AdminAuthGateProps) {
   if (!session) {
     return (
       <section className="rounded-xl bg-[var(--surface-nested)] p-6">
-        <h2 className="text-xl font-semibold">Admin Login</h2>
-        <p className="mt-1 text-sm text-slate-500">
-          Sign in with your Supabase account to access CMS settings.
-        </p>
+        <h2 className="text-xl font-semibold">{t.adminLogin}</h2>
+        <p className="mt-1 text-sm text-slate-500">{t.signInHint}</p>
 
         <form onSubmit={onSignIn} className="mt-4 grid max-w-md gap-3">
           <input
             name="email"
             type="email"
-            placeholder="admin@company.com"
+            placeholder={t.emailPlaceholder}
             required
             className="rounded-md border bg-transparent px-3 py-2"
           />
           <input
             name="password"
             type="password"
-            placeholder="Password"
+            placeholder={t.passwordPlaceholder}
             required
             className="rounded-md border bg-transparent px-3 py-2"
           />
@@ -110,21 +116,18 @@ export function AdminAuthGate({ children }: AdminAuthGateProps) {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Signing in...
+                {t.signingIn}
               </>
             ) : (
               <>
                 <LogIn className="mr-2 h-4 w-4" />
-                Sign In
+                {t.signIn}
               </>
             )}
           </Button>
           <p className="text-sm">
-            <Link
-              href="/cms/forgot-password"
-              className="font-medium text-primary underline-offset-4 hover:underline"
-            >
-              Forgot password?
+            <Link href={`${cmsBase}/forgot-password`} className="font-medium text-primary underline-offset-4 hover:underline">
+              {t.forgotPassword}
             </Link>
           </p>
           {message && <p className="text-sm text-slate-500">{message}</p>}
@@ -138,11 +141,12 @@ export function AdminAuthGate({ children }: AdminAuthGateProps) {
       <section className="rounded-xl bg-[var(--surface-nested)] p-4">
         <div className="flex flex-col items-start justify-between gap-3 md:flex-row md:items-center">
           <p className="text-sm text-slate-500">
-            Logged in as <span className="font-medium text-foreground">{session.user.email}</span>
+            {t.loggedInAs}{" "}
+            <span className="font-medium text-foreground">{session.user.email}</span>
           </p>
           <Button variant="outline" onClick={onSignOut} disabled={loading}>
             <LogOut className="mr-2 h-4 w-4" />
-            Sign Out
+            {t.signOut}
           </Button>
         </div>
       </section>

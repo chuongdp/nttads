@@ -30,6 +30,7 @@ import {
   type LandingContentCopy,
 } from "@/lib/site-home-config";
 import { parseServiceContentConfig } from "@/lib/site-service-config";
+import { useCmsDictionary } from "@/context/cms-dictionary-context";
 
 type LocalizedText = {
   vi: string;
@@ -80,21 +81,6 @@ const fieldClass =
   "mt-1 w-full rounded-lg bg-[var(--surface-card)] px-3 py-2 text-[var(--foreground)] outline-none transition placeholder:text-[var(--secondary-text)] focus-visible:ring-2 focus-visible:ring-primary/35";
 
 const localeList: Locale[] = ["vi", "en", "zh"];
-const nodeList: { id: NodeId; label: string }[] = [
-  { id: "base", label: "Thông tin chính" },
-  { id: "sectionTitles", label: "Tiêu đề section" },
-  { id: "formats", label: "Formats" },
-  { id: "benefits", label: "Benefits" },
-  { id: "process", label: "Process steps" },
-  { id: "deliverables", label: "Deliverables" },
-  { id: "images", label: "Ảnh hiển thị" },
-];
-const landingNodeList: { id: LandingNodeId; label: string }[] = [
-  { id: "hero", label: "Hero" },
-  { id: "problems", label: "Pain points" },
-  { id: "contact", label: "Contact + stats" },
-  { id: "images", label: "Images" },
-];
 
 const defaultPayload: SiteSettingsPayload = {
   brandName: "NTT Ads",
@@ -144,13 +130,6 @@ function buildDefaultLandingContentState(): LandingContentState {
   };
 }
 
-function serviceLabel(slug: ServiceSlug): string {
-  if (slug === "google-ads") return "Google Ads";
-  if (slug === "facebook-ads") return "Facebook Ads";
-  if (slug === "tiktok-ads") return "TikTok Ads";
-  return "SEO";
-}
-
 export function SiteSettingsPanel() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -164,6 +143,37 @@ export function SiteSettingsPanel() {
   const [landingLocale, setLandingLocale] = useState<Locale>("vi");
   const [landingContent, setLandingContent] = useState<LandingContentState>(buildDefaultLandingContentState());
 
+  const ts = useCmsDictionary().settings;
+  const nodeList = useMemo(
+    () =>
+      [
+        { id: "base" as const, label: ts.nodeBase },
+        { id: "sectionTitles" as const, label: ts.nodeSectionTitles },
+        { id: "formats" as const, label: ts.nodeFormats },
+        { id: "benefits" as const, label: ts.nodeBenefits },
+        { id: "process" as const, label: ts.nodeProcess },
+        { id: "deliverables" as const, label: ts.nodeDeliverables },
+        { id: "images" as const, label: ts.nodeImages },
+      ] satisfies { id: NodeId; label: string }[],
+    [ts],
+  );
+  const landingNodeList = useMemo(
+    () =>
+      [
+        { id: "hero" as const, label: ts.landingHero },
+        { id: "problems" as const, label: ts.landingProblems },
+        { id: "contact" as const, label: ts.landingContact },
+        { id: "images" as const, label: ts.landingImages },
+      ] satisfies { id: LandingNodeId; label: string }[],
+    [ts],
+  );
+  function serviceLabelFor(slug: ServiceSlug): string {
+    if (slug === "google-ads") return ts.serviceGoogleAds;
+    if (slug === "facebook-ads") return ts.serviceFacebookAds;
+    if (slug === "tiktok-ads") return ts.serviceTiktokAds;
+    return ts.serviceSeo;
+  }
+
   useEffect(() => {
     async function loadSettings() {
       setLoading(true);
@@ -175,7 +185,7 @@ export function SiteSettingsPanel() {
 
       if (error) {
         panelLog.error("loadSettings failed", { message: error.message });
-        setMessage(`Load failed: ${error.message}`);
+        setMessage(`${ts.loadFailedPrefix} ${error.message}`);
         setLoading(false);
         return;
       }
@@ -219,7 +229,7 @@ export function SiteSettingsPanel() {
     }
 
     void loadSettings();
-  }, []);
+  }, [ts]);
 
   const disabled = useMemo(() => loading || saving, [loading, saving]);
   const selectedCopy = serviceContent[selectedService][selectedLocale];
@@ -308,9 +318,9 @@ export function SiteSettingsPanel() {
 
     if (error) {
       panelLog.error("saveSettings failed", { message: error.message });
-      setMessage(`Save failed: ${error.message}`);
+      setMessage(`${ts.saveFailedPrefix} ${error.message}`);
     } else {
-      setMessage("Saved successfully.");
+      setMessage(ts.saved);
     }
 
     setSaving(false);
@@ -318,23 +328,21 @@ export function SiteSettingsPanel() {
 
   return (
     <section className="border-b border-[var(--border)]/50 pb-10">
-      <h2 className="text-xl font-semibold">Site Settings</h2>
-      <p className="mt-1 text-sm text-slate-500">
-        Quản trị global settings + nội dung riêng từng trang dịch vụ theo node.
-      </p>
+      <h2 className="text-xl font-semibold">{ts.title}</h2>
+      <p className="mt-1 text-sm text-slate-500">{ts.intro}</p>
 
       {loading ? (
         <div className="mt-6 flex items-center gap-2 text-sm text-slate-500">
           <Loader2 className="h-4 w-4 animate-spin" />
-          Loading settings...
+          {ts.loading}
         </div>
       ) : (
         <div className="mt-6 grid gap-8">
           <div className="rounded-xl border border-[var(--border)]/60 bg-[var(--surface-card)]/40 p-4 md:p-6">
-            <h3 className="text-base font-semibold">Global settings</h3>
+            <h3 className="text-base font-semibold">{ts.globalTitle}</h3>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               <label className="text-sm">
-                Brand name
+                {ts.brandName}
                 <input
                   className={fieldClass}
                   value={data.brandName}
@@ -342,7 +350,7 @@ export function SiteSettingsPanel() {
                 />
               </label>
               <label className="text-sm">
-                Brand logo URL
+                {ts.brandLogoUrl}
                 <input
                   className={fieldClass}
                   type="url"
@@ -352,7 +360,7 @@ export function SiteSettingsPanel() {
                 />
               </label>
               <label className="text-sm md:col-span-2">
-                Favicon URL
+                {ts.brandFaviconUrl}
                 <input
                   className={fieldClass}
                   type="url"
@@ -365,7 +373,7 @@ export function SiteSettingsPanel() {
 
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               <label className="text-sm">
-                Email
+                {ts.email}
                 <input
                   className={fieldClass}
                   value={data.email}
@@ -373,7 +381,7 @@ export function SiteSettingsPanel() {
                 />
               </label>
               <label className="text-sm">
-                Phone
+                {ts.phone}
                 <input
                   className={fieldClass}
                   value={data.phone}
@@ -384,7 +392,7 @@ export function SiteSettingsPanel() {
 
             <div className="mt-4 grid gap-4 md:grid-cols-3">
               <label className="text-sm">
-                Address (VI)
+                {ts.addressVi}
                 <textarea
                   className={`${fieldClass} min-h-24`}
                   value={data.address.vi}
@@ -392,7 +400,7 @@ export function SiteSettingsPanel() {
                 />
               </label>
               <label className="text-sm">
-                Address (EN)
+                {ts.addressEn}
                 <textarea
                   className={`${fieldClass} min-h-24`}
                   value={data.address.en}
@@ -400,7 +408,7 @@ export function SiteSettingsPanel() {
                 />
               </label>
               <label className="text-sm">
-                Address (ZH)
+                {ts.addressZh}
                 <textarea
                   className={`${fieldClass} min-h-24`}
                   value={data.address.zh}
@@ -411,7 +419,7 @@ export function SiteSettingsPanel() {
 
             <div className="mt-4 grid gap-4 md:grid-cols-3">
               <label className="text-sm">
-                Facebook URL
+                {ts.facebookUrl}
                 <input
                   className={fieldClass}
                   value={data.socialLinks.facebook}
@@ -421,7 +429,7 @@ export function SiteSettingsPanel() {
                 />
               </label>
               <label className="text-sm">
-                TikTok URL
+                {ts.tiktokUrl}
                 <input
                   className={fieldClass}
                   value={data.socialLinks.tiktok}
@@ -431,7 +439,7 @@ export function SiteSettingsPanel() {
                 />
               </label>
               <label className="text-sm">
-                LinkedIn URL
+                {ts.linkedinUrl}
                 <input
                   className={fieldClass}
                   value={data.socialLinks.linkedin}
@@ -473,7 +481,7 @@ export function SiteSettingsPanel() {
                             }));
                           }}
                         >
-                          Xóa
+                          {ts.delete}
                         </Button>
                       </div>
                     ))}
@@ -490,7 +498,7 @@ export function SiteSettingsPanel() {
                       }))
                     }
                   >
-                    Thêm ảnh
+                    {ts.addImage}
                   </Button>
                 </div>
               ))}
@@ -498,10 +506,8 @@ export function SiteSettingsPanel() {
           </div>
 
           <div className="rounded-xl border border-[var(--border)]/60 bg-[var(--surface-card)]/40 p-4 md:p-6">
-            <h3 className="text-base font-semibold">Landing page manager</h3>
-            <p className="mt-1 text-xs text-slate-500">
-              Cấu hình nội dung trang chủ riêng theo ngôn ngữ, không đổi color scheme hiện tại.
-            </p>
+            <h3 className="text-base font-semibold">{ts.landingTitle}</h3>
+            <p className="mt-1 text-xs text-slate-500">{ts.landingHint}</p>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[240px_1fr]">
               <aside className="space-y-2 rounded-lg border border-[var(--border)]/60 bg-[var(--surface-card)]/60 p-3">
@@ -540,7 +546,7 @@ export function SiteSettingsPanel() {
                 {landingNode === "hero" && (
                   <div className="mt-4 grid gap-4">
                     <label className="text-sm">
-                      Eyebrow
+                      {ts.eyebrow}
                       <input
                         className={fieldClass}
                         value={selectedLanding.hero.eyebrow}
@@ -553,7 +559,7 @@ export function SiteSettingsPanel() {
                       />
                     </label>
                     <label className="text-sm">
-                      Title line 1
+                      {ts.titleLine1}
                       <input
                         className={fieldClass}
                         value={selectedLanding.hero.titleLine1}
@@ -566,7 +572,7 @@ export function SiteSettingsPanel() {
                       />
                     </label>
                     <label className="text-sm">
-                      Title line 2
+                      {ts.titleLine2}
                       <input
                         className={fieldClass}
                         value={selectedLanding.hero.titleLine2}
@@ -579,7 +585,7 @@ export function SiteSettingsPanel() {
                       />
                     </label>
                     <label className="text-sm">
-                      Subtitle
+                      {ts.heroSubtitle}
                       <textarea
                         className={`${fieldClass} min-h-24`}
                         value={selectedLanding.hero.subtitle}
@@ -594,7 +600,7 @@ export function SiteSettingsPanel() {
                     <div className="grid gap-3 md:grid-cols-3">
                       {selectedLanding.hero.bullets.map((bullet, idx) => (
                         <label key={`hero-bullet-${idx}`} className="text-sm">
-                          Bullet {idx + 1}
+                          {ts.bulletN(idx + 1)}
                           <textarea
                             className={`${fieldClass} min-h-20`}
                             value={bullet}
@@ -618,7 +624,7 @@ export function SiteSettingsPanel() {
                 {landingNode === "problems" && (
                   <div className="mt-4 grid gap-4">
                     <label className="text-sm">
-                      Kicker
+                      {ts.kicker}
                       <input
                         className={fieldClass}
                         value={selectedLanding.problems.kicker}
@@ -631,7 +637,7 @@ export function SiteSettingsPanel() {
                       />
                     </label>
                     <label className="text-sm">
-                      Title
+                      {ts.labelTitle}
                       <input
                         className={fieldClass}
                         value={selectedLanding.problems.title}
@@ -646,7 +652,7 @@ export function SiteSettingsPanel() {
                     <div className="grid gap-3 md:grid-cols-2">
                       {selectedLanding.problems.items.map((item, idx) => (
                         <label key={`problem-${idx}`} className="text-sm">
-                          Item {idx + 1}
+                          {ts.itemN(idx + 1)}
                           <textarea
                             className={`${fieldClass} min-h-20`}
                             value={item}
@@ -670,7 +676,7 @@ export function SiteSettingsPanel() {
                 {landingNode === "contact" && (
                   <div className="mt-4 grid gap-4">
                     <label className="text-sm">
-                      Contact blurb
+                      {ts.contactBlurb}
                       <textarea
                         className={`${fieldClass} min-h-24`}
                         value={selectedLanding.home.contactBlurb}
@@ -684,7 +690,7 @@ export function SiteSettingsPanel() {
                     </label>
                     <div className="grid gap-3 md:grid-cols-2">
                       <label className="text-sm">
-                        Response time label
+                        {ts.responseTimeLabel}
                         <input
                           className={fieldClass}
                           value={selectedLanding.home.responseTimeLabel}
@@ -697,7 +703,7 @@ export function SiteSettingsPanel() {
                         />
                       </label>
                       <label className="text-sm">
-                        Response time value
+                        {ts.responseTimeValue}
                         <input
                           className={fieldClass}
                           value={selectedLanding.home.responseTimeValue}
@@ -710,7 +716,7 @@ export function SiteSettingsPanel() {
                         />
                       </label>
                       <label className="text-sm">
-                        Strategy session label
+                        {ts.strategySessionLabel}
                         <input
                           className={fieldClass}
                           value={selectedLanding.home.strategySessionLabel}
@@ -723,7 +729,7 @@ export function SiteSettingsPanel() {
                         />
                       </label>
                       <label className="text-sm">
-                        Strategy session value
+                        {ts.strategySessionValue}
                         <input
                           className={fieldClass}
                           value={selectedLanding.home.strategySessionValue}
@@ -738,7 +744,7 @@ export function SiteSettingsPanel() {
                     </div>
                     <div className="grid gap-3 md:grid-cols-3">
                       <label className="text-sm">
-                        Counter 1
+                        {ts.counterN(1)}
                         <input
                           className={fieldClass}
                           value={selectedLanding.home.counters.clients}
@@ -754,7 +760,7 @@ export function SiteSettingsPanel() {
                         />
                       </label>
                       <label className="text-sm">
-                        Counter 2
+                        {ts.counterN(2)}
                         <input
                           className={fieldClass}
                           value={selectedLanding.home.counters.projects}
@@ -770,7 +776,7 @@ export function SiteSettingsPanel() {
                         />
                       </label>
                       <label className="text-sm">
-                        Counter 3
+                        {ts.counterN(3)}
                         <input
                           className={fieldClass}
                           value={selectedLanding.home.counters.roas}
@@ -827,7 +833,7 @@ export function SiteSettingsPanel() {
                                   }));
                                 }}
                               >
-                                Xóa
+                                {ts.delete}
                               </Button>
                             </div>
                           ))}
@@ -847,7 +853,7 @@ export function SiteSettingsPanel() {
                             }))
                           }
                         >
-                          Thêm ảnh
+                          {ts.addImage}
                         </Button>
                       </div>
                     ))}
@@ -858,10 +864,8 @@ export function SiteSettingsPanel() {
           </div>
 
           <div className="rounded-xl border border-[var(--border)]/60 bg-[var(--surface-card)]/40 p-4 md:p-6">
-            <h3 className="text-base font-semibold">Service content manager</h3>
-            <p className="mt-1 text-xs text-slate-500">
-              Chọn service và node để chỉnh text/ảnh riêng. Mỗi locale có bộ nội dung độc lập.
-            </p>
+            <h3 className="text-base font-semibold">{ts.serviceTitle}</h3>
+            <p className="mt-1 text-xs text-slate-500">{ts.serviceHint}</p>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[280px_1fr]">
               <aside className="space-y-3 rounded-lg border border-[var(--border)]/60 bg-[var(--surface-card)]/60 p-3">
@@ -874,7 +878,7 @@ export function SiteSettingsPanel() {
                       }`}
                       onClick={() => setSelectedService(slug)}
                     >
-                      {serviceLabel(slug)}
+                      {serviceLabelFor(slug)}
                     </button>
                     {selectedService === slug && (
                       <div className="mt-2 space-y-1">
@@ -917,7 +921,7 @@ export function SiteSettingsPanel() {
                 {selectedNode === "base" && (
                   <div className="mt-4 grid gap-4">
                     <label className="text-sm">
-                      Title
+                      {ts.labelTitle}
                       <input
                         className={fieldClass}
                         value={selectedCopy.title}
@@ -925,7 +929,7 @@ export function SiteSettingsPanel() {
                       />
                     </label>
                     <label className="text-sm">
-                      Summary
+                      {ts.labelSummary}
                       <textarea
                         className={`${fieldClass} min-h-20`}
                         value={selectedCopy.summary}
@@ -933,7 +937,7 @@ export function SiteSettingsPanel() {
                       />
                     </label>
                     <label className="text-sm">
-                      Solution headline
+                      {ts.labelSolutionHeadline}
                       <input
                         className={fieldClass}
                         value={selectedCopy.solutionHeadline ?? ""}
@@ -943,7 +947,7 @@ export function SiteSettingsPanel() {
                       />
                     </label>
                     <label className="text-sm">
-                      Lead
+                      {ts.labelLead}
                       <textarea
                         className={`${fieldClass} min-h-24`}
                         value={selectedCopy.lead}
@@ -951,7 +955,7 @@ export function SiteSettingsPanel() {
                       />
                     </label>
                     <label className="text-sm">
-                      CTA label
+                      {ts.labelCta}
                       <input
                         className={fieldClass}
                         value={selectedCopy.ctaLabel ?? ""}
@@ -964,7 +968,7 @@ export function SiteSettingsPanel() {
                 {selectedNode === "sectionTitles" && (
                   <div className="mt-4 grid gap-4">
                     <label className="text-sm">
-                      Formats section title
+                      {ts.labelFormatsSectionTitle}
                       <input
                         className={fieldClass}
                         value={selectedCopy.formatsSectionTitle ?? ""}
@@ -974,7 +978,7 @@ export function SiteSettingsPanel() {
                       />
                     </label>
                     <label className="text-sm">
-                      Gallery section title
+                      {ts.labelGallerySectionTitle}
                       <input
                         className={fieldClass}
                         value={selectedCopy.gallerySectionTitle ?? ""}
@@ -984,7 +988,7 @@ export function SiteSettingsPanel() {
                       />
                     </label>
                     <label className="text-sm">
-                      Benefits section title
+                      {ts.labelBenefitsSectionTitle}
                       <input
                         className={fieldClass}
                         value={selectedCopy.benefitsSectionTitle ?? ""}
@@ -994,7 +998,7 @@ export function SiteSettingsPanel() {
                       />
                     </label>
                     <label className="text-sm">
-                      Process section title
+                      {ts.labelProcessSectionTitle}
                       <input
                         className={fieldClass}
                         value={selectedCopy.processSectionTitle ?? ""}
@@ -1011,7 +1015,7 @@ export function SiteSettingsPanel() {
                     {(selectedCopy.formats ?? []).map((item, idx) => (
                       <div key={`fmt-${idx}`} className="rounded-md border border-[var(--border)]/60 p-3">
                         <label className="text-sm">
-                          Title
+                          {ts.labelTitle}
                           <input
                             className={fieldClass}
                             value={item.title}
@@ -1019,7 +1023,7 @@ export function SiteSettingsPanel() {
                           />
                         </label>
                         <label className="mt-2 block text-sm">
-                          Description
+                          {ts.labelDescription}
                           <textarea
                             className={`${fieldClass} min-h-20`}
                             value={item.description}
@@ -1027,7 +1031,7 @@ export function SiteSettingsPanel() {
                           />
                         </label>
                         <Button type="button" variant="outline" size="sm" className="mt-2" onClick={() => removeArrayCard("formats", idx)}>
-                          Xóa mục
+                          {ts.removeItem}
                         </Button>
                       </div>
                     ))}
@@ -1042,7 +1046,7 @@ export function SiteSettingsPanel() {
                         }))
                       }
                     >
-                      Thêm format
+                      {ts.addFormat}
                     </Button>
                   </div>
                 )}
@@ -1052,7 +1056,7 @@ export function SiteSettingsPanel() {
                     {(selectedCopy.benefits ?? []).map((item, idx) => (
                       <div key={`benefit-${idx}`} className="rounded-md border border-[var(--border)]/60 p-3">
                         <label className="text-sm">
-                          Title
+                          {ts.labelTitle}
                           <input
                             className={fieldClass}
                             value={item.title}
@@ -1060,7 +1064,7 @@ export function SiteSettingsPanel() {
                           />
                         </label>
                         <label className="mt-2 block text-sm">
-                          Description
+                          {ts.labelDescription}
                           <textarea
                             className={`${fieldClass} min-h-20`}
                             value={item.description}
@@ -1074,7 +1078,7 @@ export function SiteSettingsPanel() {
                           className="mt-2"
                           onClick={() => removeArrayCard("benefits", idx)}
                         >
-                          Xóa mục
+                          {ts.removeItem}
                         </Button>
                       </div>
                     ))}
@@ -1089,7 +1093,7 @@ export function SiteSettingsPanel() {
                         }))
                       }
                     >
-                      Thêm benefit
+                      {ts.addBenefit}
                     </Button>
                   </div>
                 )}
@@ -1099,7 +1103,7 @@ export function SiteSettingsPanel() {
                     {(selectedCopy.processSteps ?? []).map((item, idx) => (
                       <div key={`process-${idx}`} className="rounded-md border border-[var(--border)]/60 p-3">
                         <label className="text-sm">
-                          Title
+                          {ts.labelTitle}
                           <input
                             className={fieldClass}
                             value={item.title}
@@ -1107,7 +1111,7 @@ export function SiteSettingsPanel() {
                           />
                         </label>
                         <label className="mt-2 block text-sm">
-                          Description
+                          {ts.labelDescription}
                           <textarea
                             className={`${fieldClass} min-h-20`}
                             value={item.description}
@@ -1126,7 +1130,7 @@ export function SiteSettingsPanel() {
                             }))
                           }
                         >
-                          Xóa bước
+                          {ts.removeStep}
                         </Button>
                       </div>
                     ))}
@@ -1141,7 +1145,7 @@ export function SiteSettingsPanel() {
                         }))
                       }
                     >
-                      Thêm bước
+                      {ts.addStep}
                     </Button>
                   </div>
                 )}
@@ -1172,7 +1176,7 @@ export function SiteSettingsPanel() {
                             }))
                           }
                         >
-                          Xóa
+                          {ts.remove}
                         </Button>
                       </div>
                     ))}
@@ -1187,7 +1191,7 @@ export function SiteSettingsPanel() {
                         }))
                       }
                     >
-                      Thêm dòng deliverable
+                      {ts.addDeliverable}
                     </Button>
                   </div>
                 )}
@@ -1228,7 +1232,7 @@ export function SiteSettingsPanel() {
                               }));
                             }}
                           >
-                            Xóa
+                            {ts.delete}
                           </Button>
                         </div>
                       ))}
@@ -1248,7 +1252,7 @@ export function SiteSettingsPanel() {
                         }))
                       }
                     >
-                      Thêm ảnh
+                      {ts.addImage}
                     </Button>
                   </div>
                 )}
@@ -1261,12 +1265,12 @@ export function SiteSettingsPanel() {
               {saving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  {ts.saving}
                 </>
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  Save Settings
+                  {ts.save}
                 </>
               )}
             </Button>

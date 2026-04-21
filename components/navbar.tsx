@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { type Locale } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -25,6 +29,8 @@ type NavbarProps = {
       blog: string;
       admin: string;
       contact: string;
+      menuOpen: string;
+      menuClose: string;
     };
   };
 };
@@ -38,6 +44,30 @@ const serviceLinks = [
 
 export function Navbar({ locale, dictionary, brandLogoUrl }: NavbarProps) {
   const base = `/${locale}`;
+  const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    void Promise.resolve().then(() => {
+      setMobileOpen(false);
+    });
+  }, [pathname]);
+
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileOpen]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--surface-card)_92%,transparent)] backdrop-blur-md supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--surface-card)_86%,transparent)]">
@@ -107,7 +137,7 @@ export function Navbar({ locale, dictionary, brandLogoUrl }: NavbarProps) {
             {dictionary.nav.blog}
           </Link>
           <Link
-            href="/cms/dashboard"
+            href={`${base}/cms/dashboard`}
             className="text-base font-medium text-[var(--foreground)] decoration-2 underline-offset-4 hover:underline"
           >
             {dictionary.nav.admin}
@@ -115,6 +145,16 @@ export function Navbar({ locale, dictionary, brandLogoUrl }: NavbarProps) {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface-card)] text-[var(--foreground)] outline-none transition hover:bg-[var(--surface-nested)] focus-visible:ring-2 focus-visible:ring-primary/35 md:hidden"
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-primary-nav"
+            aria-label={mobileOpen ? dictionary.nav.menuClose : dictionary.nav.menuOpen}
+            onClick={() => setMobileOpen((o) => !o)}
+          >
+            {mobileOpen ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
+          </button>
           <LanguageSwitcher />
           <ThemeToggle />
           <Button asChild size="sm" variant="outline" className="md:hidden">
@@ -125,6 +165,87 @@ export function Navbar({ locale, dictionary, brandLogoUrl }: NavbarProps) {
           </Button>
         </div>
       </nav>
+
+      {mobileOpen ? (
+        <>
+          <button
+            type="button"
+            className="fixed inset-0 z-40 bg-black/45 md:hidden"
+            aria-hidden
+            tabIndex={-1}
+            onClick={() => setMobileOpen(false)}
+          />
+          <div
+            id="mobile-primary-nav"
+            className="fixed left-0 right-0 top-14 z-50 max-h-[min(28rem,calc(100dvh-3.5rem))] overflow-y-auto border-b border-[var(--border)] bg-[var(--surface-card)] px-4 py-4 shadow-lg md:hidden"
+          >
+            <div className="mx-auto flex max-w-[1440px] flex-col gap-1">
+              <Link
+                href={base}
+                className="rounded-lg px-3 py-3 text-base font-medium text-[var(--foreground)] hover:bg-[var(--surface-nested)]"
+                onClick={() => setMobileOpen(false)}
+              >
+                {dictionary.nav.home}
+              </Link>
+              <details className="group rounded-lg border border-[var(--border)]/60 bg-[var(--surface-nested)]/40 open:bg-[var(--surface-nested)]">
+                <summary className="cursor-pointer list-none px-3 py-3 text-base font-medium text-[var(--foreground)] [&::-webkit-details-marker]:hidden">
+                  <span className="flex items-center justify-between gap-2">
+                    {dictionary.nav.services}
+                    <ChevronDown className="h-4 w-4 shrink-0 text-[var(--body-muted)] transition-transform group-open:rotate-180" aria-hidden />
+                  </span>
+                </summary>
+                <div className="border-t border-[var(--border)]/50 px-2 py-2">
+                  {serviceLinks.map((service) => (
+                    <Link
+                      key={service.slug}
+                      href={`${base}/services/${service.slug}`}
+                      className="block rounded-md px-3 py-2.5 text-sm text-[var(--foreground)] hover:bg-[var(--surface-card)]"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {service.label}
+                    </Link>
+                  ))}
+                </div>
+              </details>
+              <Link
+                href={`${base}/portfolio`}
+                className="rounded-lg px-3 py-3 text-base font-medium text-[var(--foreground)] hover:bg-[var(--surface-nested)]"
+                onClick={() => setMobileOpen(false)}
+              >
+                {dictionary.nav.portfolio}
+              </Link>
+              <Link
+                href={`${base}/about`}
+                className="rounded-lg px-3 py-3 text-base font-medium text-[var(--foreground)] hover:bg-[var(--surface-nested)]"
+                onClick={() => setMobileOpen(false)}
+              >
+                {dictionary.nav.about}
+              </Link>
+              <Link
+                href={`${base}/blog`}
+                className="rounded-lg px-3 py-3 text-base font-medium text-[var(--foreground)] hover:bg-[var(--surface-nested)]"
+                onClick={() => setMobileOpen(false)}
+              >
+                {dictionary.nav.blog}
+              </Link>
+              <Link
+                href={`${base}/cms/dashboard`}
+                className="rounded-lg px-3 py-3 text-base font-medium text-[var(--foreground)] hover:bg-[var(--surface-nested)]"
+                onClick={() => setMobileOpen(false)}
+              >
+                {dictionary.nav.admin}
+              </Link>
+              <Link
+                href={`${base}#contact`}
+                className="mt-1 rounded-lg border border-primary/35 bg-primary/10 px-3 py-3 text-center text-base font-medium text-primary hover:bg-primary/15"
+                onClick={() => setMobileOpen(false)}
+              >
+                {dictionary.nav.contact}
+              </Link>
+            </div>
+          </div>
+        </>
+      ) : null}
     </header>
   );
 }
