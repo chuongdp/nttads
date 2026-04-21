@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { Loader2, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -12,6 +12,13 @@ export function ForgotPasswordForm() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
+  const [resetUrlExample, setResetUrlExample] = useState("");
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      setResetUrlExample(`${window.location.origin}/cms/reset-password`);
+    });
+  }, []);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -43,10 +50,17 @@ export function ForgotPasswordForm() {
     <section className="rounded-xl bg-[var(--surface-nested)] p-6">
       <h1 className="text-xl font-semibold text-[var(--foreground)]">Forgot password</h1>
       <p className="mt-2 text-sm text-[var(--body-muted)]">
-        Enter your admin email. In Supabase <strong className="text-[var(--foreground)]">Authentication → URL Configuration → Redirect URLs</strong> add your CMS origin +{" "}
-        <code className="rounded bg-[var(--surface-card)] px-1.5 py-0.5 text-xs">/reset-password</code> (e.g.{" "}
-        <code className="rounded bg-[var(--surface-card)] px-1.5 py-0.5 text-xs">http://localhost:3000/cms/reset-password</code>).
+        Enter your admin email. In Supabase{" "}
+        <strong className="text-[var(--foreground)]">Authentication → URL Configuration → Redirect URLs</strong> add
+        exactly this URL (same scheme + host as this CMS):
       </p>
+      {resetUrlExample ? (
+        <p className="mt-2">
+          <code className="break-all rounded bg-[var(--surface-card)] px-2 py-1 text-xs">{resetUrlExample}</code>
+        </p>
+      ) : (
+        <p className="mt-2 text-xs text-[var(--secondary-text)]">Loading URL…</p>
+      )}
 
       {sent ? (
         <p className="mt-4 text-sm text-[var(--body-muted)]">{message}</p>
